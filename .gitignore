@@ -1,0 +1,15 @@
+/.gradle/config.properties
+/.idea/vcs.xml
+/gradle/
+/local.properties
+/.idea/.gitignore
+/.gradle/8.4/checksums/checksums.lock
+/.gradle/8.4/fileHashes/fileHashes.lock
+/.idea/gradle.xml
+/.idea/migrations.xml
+/.idea/misc.xml
+/.gradle/
+/.idea/
+/.fleet/
+/composeApp/build/
+build/reports/

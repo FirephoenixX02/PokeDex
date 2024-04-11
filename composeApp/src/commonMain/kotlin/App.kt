@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.json.JSONObject
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -39,9 +41,9 @@ import java.net.URL
 @Composable
 @Preview
 fun App() {
-    val pokemap = ArrayList<Pokemon>()
+    var pokemap = ArrayList<Pokemon>()
     val apiString = "https://pokeapi.co/api/v2/pokemon/"
-    var dataLoaded by mutableStateOf(false)
+    var dataLoaded by remember { mutableStateOf(false) }
     val orange = Color(0xFFffa500)
 
     val pokemonTypeDrawableMap = hashMapOf(
@@ -66,13 +68,26 @@ fun App() {
     )
 
     MaterialTheme {
-        Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
-            if (!dataLoaded) {
-                println("Should show indicator")
-                //For some reason the application calls this code but does not diplay the ui if the launchedeffect is running
-                //This should not happen as launched-effect is an async co routine and non blocking
+        if (!dataLoaded) {
+            // Load data asynchronously
+            LaunchedEffect(Unit) {
+                 pokemap = withContext(Dispatchers.IO) {
+                     loadPokemonData(apiString)
+                 } as ArrayList<Pokemon>
+
+                pokemap.forEach { pokemon ->
+                    println(pokemon)
+                }
+
+                dataLoaded = true
+            }
+            //Show Loading Circle
+            Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.size(128.dp), color = Color.White)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(128.dp),
+                        color = Color.White
+                    )
                     Text(
                         "Fetching data from API...",
                         color = Color.White,
@@ -80,7 +95,11 @@ fun App() {
                         modifier = Modifier.height(200.dp)
                     )
                 }
-            } else {
+            }
+        } else {
+            println("Pokemon should show up any second!")
+            //Display Pokemon Grid
+            Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 256.dp),
                 ) {
@@ -116,8 +135,7 @@ fun App() {
                                     Image(
                                         org.jetbrains.compose.resources.painterResource(
                                             pokemonTypeDrawableMap[type]!!
-                                        ),
-                                        contentDescription = null
+                                        ), contentDescription = null
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -134,31 +152,23 @@ fun App() {
             }
         }
     }
-    //Blocks ui rendering thread?
-    LaunchedEffect(Unit) {
-        //PokeDex API: https://pokeapi.co/api/v2/pokemon/
-        for (i in 1..10) {
-            val json = JSONObject(URL(apiString + i).readText());
-            val sprites = json.optJSONObject("sprites")
-            val types = json.getJSONArray("types")
-            val firstType = types.optJSONObject(0)
-            val type: String = firstType.optJSONObject("type").optString("name")
+}
 
-            val pokemon = Pokemon(
-                json.optString("name"),
-                URL(sprites.optString("front_default")),
-                type,
-                json.optInt("id")
-            )
+// Function to load Pokemon data asynchronously
+suspend fun loadPokemonData(apiString: String): List<Pokemon> {
+    val pokemap = ArrayList<Pokemon>()
+    for (i in 1..10) {
+        val json = JSONObject(URL(apiString + i).readText());
+        val sprites = json.optJSONObject("sprites")
+        val types = json.getJSONArray("types")
+        val firstType = types.optJSONObject(0)
+        val type: String = firstType.optJSONObject("type").optString("name")
 
-            println(pokemon)
+        val pokemon = Pokemon(
+            json.optString("name"), URL(sprites.optString("front_default")), type, json.optInt("id")
+        )
 
-            //println(type)
-            pokemap.add(
-                pokemon
-            )
-        }
-        dataLoaded = true;
+        pokemap.add(pokemon)
     }
-
+    return pokemap
 }
