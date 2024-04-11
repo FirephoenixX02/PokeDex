@@ -36,6 +36,7 @@ import pokedex.composeapp.generated.resources.Res
 import pokedex.composeapp.generated.resources.*;
 
 import java.net.URL
+import java.util.Locale
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -71,9 +72,9 @@ fun App() {
         if (!dataLoaded) {
             // Load data asynchronously
             LaunchedEffect(Unit) {
-                 pokemap = withContext(Dispatchers.IO) {
-                     loadPokemonData(apiString)
-                 } as ArrayList<Pokemon>
+                pokemap = withContext(Dispatchers.IO) {
+                    loadPokemonData(apiString, 1, 10)
+                } as ArrayList<Pokemon>
 
                 pokemap.forEach { pokemon ->
                     println(pokemon)
@@ -81,6 +82,7 @@ fun App() {
 
                 dataLoaded = true
             }
+
             //Show Loading Circle
             Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -155,17 +157,19 @@ fun App() {
 }
 
 // Function to load Pokemon data asynchronously
-suspend fun loadPokemonData(apiString: String): List<Pokemon> {
+suspend fun loadPokemonData(apiString: String, startId: Int, endId: Int): List<Pokemon> {
     val pokemap = ArrayList<Pokemon>()
-    for (i in 1..10) {
+    for (i in startId..endId) {
         val json = JSONObject(URL(apiString + i).readText());
         val sprites = json.optJSONObject("sprites")
         val types = json.getJSONArray("types")
         val firstType = types.optJSONObject(0)
         val type: String = firstType.optJSONObject("type").optString("name")
+        val name: String = json.optString("name")
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         val pokemon = Pokemon(
-            json.optString("name"), URL(sprites.optString("front_default")), type, json.optInt("id")
+            name, URL(sprites.optString("front_default")), type, json.optInt("id")
         )
 
         pokemap.add(pokemon)
