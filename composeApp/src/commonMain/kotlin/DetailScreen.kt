@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -57,11 +59,11 @@ data class DetailScreen(
         val height: String = json.optString("height")
         val weight: String = json.optString("weight")
         Box(
-            modifier = Modifier.background(color = orange).fillMaxSize(),
+            modifier = Modifier.background(color = Color.White).fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             //Back Button
-            Button(onClick = { navigator.push(navigator.lastItem) }) {
+            Button(onClick = { navigator.pop() }, modifier = Modifier.align(Alignment.TopStart), colors = ButtonDefaults.buttonColors(backgroundColor = orange, contentColor = Color.White)) {
                 Text("Back")
             }
             //Details
@@ -102,6 +104,11 @@ data class DetailScreen(
                 ) {
                     Text(
                         "Name: $name",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Type: $type",
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold
                     )
