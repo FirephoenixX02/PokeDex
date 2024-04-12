@@ -37,33 +37,33 @@ import java.util.Locale
 
 var pokemap = ArrayList<Pokemon>()
 val apiString = "https://pokeapi.co/api/v2/pokemon/"
+@OptIn(ExperimentalResourceApi::class)
+val pokemonTypeDrawableMap = hashMapOf(
+    "normal" to Res.drawable.normal,
+    "fire" to Res.drawable.fire,
+    "water" to Res.drawable.water,
+    "electric" to Res.drawable.electric,
+    "grass" to Res.drawable.grass,
+    "ice" to Res.drawable.ice,
+    "fighting" to Res.drawable.fighting,
+    "poison" to Res.drawable.poison,
+    "ground" to Res.drawable.ground,
+    "flying" to Res.drawable.flying,
+    "psychic" to Res.drawable.psychic,
+    "bug" to Res.drawable.bug,
+    "rock" to Res.drawable.rock,
+    "ghost" to Res.drawable.ghost,
+    "dragon" to Res.drawable.dragon,
+    "dark" to Res.drawable.dark,
+    "steel" to Res.drawable.steel,
+    "fairy" to Res.drawable.fairy
+)
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 @Preview
 fun App() {
     var dataLoaded by remember { mutableStateOf(false) }
-
-    val pokemonTypeDrawableMap = hashMapOf(
-        "normal" to Res.drawable.normal,
-        "fire" to Res.drawable.fire,
-        "water" to Res.drawable.water,
-        "electric" to Res.drawable.electric,
-        "grass" to Res.drawable.grass,
-        "ice" to Res.drawable.ice,
-        "fighting" to Res.drawable.fighting,
-        "poison" to Res.drawable.poison,
-        "ground" to Res.drawable.ground,
-        "flying" to Res.drawable.flying,
-        "psychic" to Res.drawable.psychic,
-        "bug" to Res.drawable.bug,
-        "rock" to Res.drawable.rock,
-        "ghost" to Res.drawable.ghost,
-        "dragon" to Res.drawable.dragon,
-        "dark" to Res.drawable.dark,
-        "steel" to Res.drawable.steel,
-        "fairy" to Res.drawable.fairy
-    )
 
     MaterialTheme {
         if (!dataLoaded) {
@@ -87,7 +87,7 @@ fun App() {
         } else {
             println("Pokemon should show up any second!")
             //Display Pokemon Grid
-            Navigator(screen = HomeScreen(getPokeMap(), pokemonTypeDrawableMap)) {
+            Navigator(screen = HomeScreen()) {
                 navigator -> SlideTransition(navigator)
             }
         }
