@@ -39,6 +39,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
 
@@ -55,18 +57,19 @@ data class DetailScreen(
         var pokemonData by remember { mutableStateOf<PokemonData?>(null) }
 
         LaunchedEffect(Unit) {
-            pokemonData = fetchPokemonDetails();
+            pokemonData = withContext(Dispatchers.IO) {
+                fetchPokemonDetails();
+            }
             dataLoaded = true;
         }
 
-        LaunchedEffect(dataLoaded, pokemon) {
-            if (dataLoaded) {
-                navigator.push(DetailScreen(pokemon))
-            }
-        }
-
         if (!dataLoaded) {
-            navigator.push(LoadingScreen())
+            Box(
+                modifier = Modifier.background(color = Color.White).fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Fetching Data from API...")
+            }
         } else {
             Box(
                 modifier = Modifier.background(color = Color.White).fillMaxSize(),
