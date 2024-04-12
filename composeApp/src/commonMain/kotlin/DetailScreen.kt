@@ -59,9 +59,9 @@ data class DetailScreen(
             dataLoaded = true;
         }
 
-        LaunchedEffect(dataLoaded, this) {
+        LaunchedEffect(dataLoaded, pokemon) {
             if (dataLoaded) {
-                navigator.push(this@DetailScreen)
+                navigator.push(DetailScreen(pokemon))
             }
         }
 
