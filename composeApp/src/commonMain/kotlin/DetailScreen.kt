@@ -115,7 +115,7 @@ data class DetailScreen(
                         detailRow("Type:", pokemonData?.type?.capitalize() ?: "")
                         detailRow("Base XP:", pokemonData?.baseExperience.toString())
                         detailRow("Height:", pokemonData?.height.toString())
-                        detailRow("Weight:", pokemonData?.weight.toString())
+                        detailRow("Weight:", pokemonData?.weight.toString() + "kg")
                     }
                 }
 
