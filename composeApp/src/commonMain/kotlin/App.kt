@@ -37,6 +37,7 @@ import java.util.Locale
 
 var pokemap = ArrayList<Pokemon>()
 val apiString = "https://pokeapi.co/api/v2/pokemon/"
+
 @OptIn(ExperimentalResourceApi::class)
 val pokemonTypeDrawableMap = hashMapOf(
     "normal" to Res.drawable.normal,
@@ -59,7 +60,6 @@ val pokemonTypeDrawableMap = hashMapOf(
     "fairy" to Res.drawable.fairy
 )
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 @Preview
 fun App() {
@@ -67,14 +67,14 @@ fun App() {
 
     MaterialTheme {
         if (!dataLoaded) {
-            Navigator(screen = LoadingScreen()) {
-                navigator -> FadeTransition(navigator)
+            Navigator(screen = LoadingScreen()) { navigator ->
+                FadeTransition(navigator)
             }
 
             // Load data asynchronously
             LaunchedEffect(Unit) {
                 pokemap = withContext(Dispatchers.IO) {
-                    loadPokemonData(apiString, 1, 10)
+                    loadPokemonData(1, 10)
                 } as ArrayList<Pokemon>
 
                 pokemap.forEach { pokemon ->
@@ -87,29 +87,55 @@ fun App() {
         } else {
             println("Pokemon should show up any second!")
             //Display Pokemon Grid
-            Navigator(screen = HomeScreen()) {
-                navigator -> SlideTransition(navigator)
+            Navigator(screen = HomeScreen()) { navigator ->
+                SlideTransition(navigator)
             }
         }
     }
 }
 
 // Function to load Pokemon data asynchronously, leave suspend even if IDE complains
-suspend fun loadPokemonData(apiString: String, startId: Int, endId: Int): List<Pokemon> {
+suspend fun loadPokemonData(startId: Int, endId: Int): List<Pokemon> {
     val pokemap = ArrayList<Pokemon>()
     for (i in startId..endId) {
         val json = JSONObject(URL(apiString + i).readText());
         val sprites = json.optJSONObject("sprites")
-        val type: String = json.getJSONArray("types").optJSONObject(0).optJSONObject("type").optString("name")
+        val type: String =
+            json.getJSONArray("types").optJSONObject(0).optJSONObject("type")?.optString("name") ?: "null"
         val name: String = json.optString("name")
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         val pokemon = Pokemon(
-            name, URL(sprites.optString("front_default")), type, json.optInt("id")
+            name, URL(sprites?.optString("front_default") ?: "null"), type, json.optInt("id")
         )
 
         pokemap.add(pokemon)
     }
+    return pokemap
+}
+
+suspend fun loadPokemonDataFromName(name: String): ArrayList<Pokemon>? {
+    if (name.equals("")) return null
+    var json: JSONObject = JSONObject("{}")
+    try {
+         json = JSONObject(URL(apiString + name).readText());
+    } catch (e: Exception) {
+        return null
+    }
+    val sprites = json.optJSONObject("sprites")
+    val type: String =
+        json.getJSONArray("types").optJSONObject(0).optJSONObject("type")?.optString("name") ?: "null"
+    val name: String = json.optString("name")
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+    val pokemon = Pokemon(
+        name, URL(sprites?.optString("front_default") ?: "null"), type, json.optInt("id")
+    )
+
+    val pokemap = ArrayList<Pokemon>()
+
+    pokemap.add(pokemon)
+
     return pokemap
 }
 

@@ -7,13 +7,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -28,8 +38,12 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import java.util.Locale
 
 class HomeScreen: Screen {
 
@@ -38,6 +52,8 @@ class HomeScreen: Screen {
     override fun Content() {
         val orange = Color(0xFFffa500)
         val navigator = LocalNavigator.currentOrThrow
+        val coroutineScope = rememberCoroutineScope()
+        var searchQuery by remember { mutableStateOf("") }
         Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 256.dp),
@@ -88,6 +104,20 @@ class HomeScreen: Screen {
                     }
                 }
             }
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { newName -> searchQuery = newName;
+                    if (PokemonNames.names.contains(searchQuery.lowercase(Locale.getDefault()))) {
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                val newMap = loadPokemonDataFromName(searchQuery);
+                                newMap?.let { pokemap.clear(); pokemap.addAll(it) }
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier.background(color = Color.White),
+            )
         }
     }
 
