@@ -5,8 +5,8 @@ data class PokemonData(
     val name: String,
     val type: String,
     val baseExperience: Int,
-    val height: Int, // Height in decimetres
-    val weight: Int, // Weight in hectograms
+    val height: Int,
+    val weight: Int,
     val hp: Int,
     val attack: Int,
     val defense: Int,
@@ -18,8 +18,8 @@ data class PokemonData(
         fun fromJson(json: JSONObject): PokemonData {
             val name = json.optString("name")
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            val type = json.getJSONArray("types").optJSONObject(0).optJSONObject("type")
-                .optString("name")
+            val type =
+                json.getJSONArray("types").optJSONObject(0).optJSONObject("type").optString("name")
             val baseExperience = json.optInt("base_experience")
             val height = json.optInt("height")
             val weight = json.optInt("weight")

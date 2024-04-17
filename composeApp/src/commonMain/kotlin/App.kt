@@ -98,7 +98,8 @@ suspend fun loadPokemonData(startId: Int, endId: Int): List<Pokemon> {
         val json = JSONObject(URL(apiString + i).readText());
         val sprites = json.optJSONObject("sprites")
         val type: String =
-            json.getJSONArray("types").optJSONObject(0).optJSONObject("type")?.optString("name") ?: "null"
+            json.getJSONArray("types").optJSONObject(0).optJSONObject("type")?.optString("name")
+                ?: "null"
         val name: String = json.optString("name")
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
@@ -117,14 +118,15 @@ suspend fun loadPokemonDataFromName(name: String): Pokemon? {
     if (trimmedName == "") return null
     var json: JSONObject
     try {
-         json = JSONObject(URL(apiString + trimmedName).readText());
+        json = JSONObject(URL(apiString + trimmedName).readText());
     } catch (e: Exception) {
         println(e)
         return null
     }
     val sprites = json.optJSONObject("sprites")
     val type: String =
-        json.getJSONArray("types").optJSONObject(0).optJSONObject("type")?.optString("name") ?: "null"
+        json.getJSONArray("types").optJSONObject(0).optJSONObject("type")?.optString("name")
+            ?: "null"
     val name: String = json.optString("name")
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 

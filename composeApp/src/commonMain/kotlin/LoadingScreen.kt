@@ -21,8 +21,7 @@ class LoadingScreen : Screen {
         Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(128.dp),
-                    color = Color.White
+                    modifier = Modifier.size(128.dp), color = Color.White
                 )
                 Text(
                     "Fetching data from API...",

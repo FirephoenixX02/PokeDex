@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,16 +20,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PokemonStatCard(
-    hp: Int,
-    attack: Int,
-    defense: Int,
-    specialAttack: Int,
-    specialDefense: Int,
-    speed: Int
+    hp: Int, attack: Int, defense: Int, specialAttack: Int, specialDefense: Int, speed: Int
 ) {
     Column(
-        modifier = Modifier
-            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+        modifier = Modifier.background(color = Color.White, shape = RoundedCornerShape(8.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.Bottom,
     ) {
@@ -46,8 +39,7 @@ fun PokemonStatCard(
 @Composable
 private fun StatRow(statName: String, progress: Int, color: Color) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = "$statName: $progress",
