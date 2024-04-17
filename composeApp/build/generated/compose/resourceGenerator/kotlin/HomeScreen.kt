@@ -62,7 +62,7 @@ class HomeScreen : Screen {
         var searchQuery by remember { mutableStateOf("") }
         val yellow = Color(0xFFFFD700)
         var placeholder by remember { mutableStateOf("") }
-        var currentFilter by remember { mutableStateOf("") }
+        var currentFilter by remember { mutableStateOf("all") }
         var isFilterOpen by remember { mutableStateOf(false) }
         val filterOptions = listOf(
             "all",
