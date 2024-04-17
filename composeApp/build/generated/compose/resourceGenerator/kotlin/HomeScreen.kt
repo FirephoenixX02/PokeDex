@@ -57,7 +57,13 @@ class HomeScreen: Screen {
         val navigator = LocalNavigator.currentOrThrow
         val coroutineScope = rememberCoroutineScope()
         var searchQuery by remember { mutableStateOf("") }
-        Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
+        val yellow = Color(0xFFFFD700)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = orange),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { newName -> searchQuery = newName },
@@ -84,8 +90,7 @@ class HomeScreen: Screen {
                                         println(names)
                                         println(newMap)
                                         if (newMap.isNotEmpty()) {
-                                            pokemap.clear()
-                                            pokemap.addAll(newMap)
+                                            pokemap = newMap
                                         }
                                     }
                                 }
@@ -96,11 +101,15 @@ class HomeScreen: Screen {
                     }
                 },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = Color(0xFFffa500), // Orange color
-                    unfocusedBorderColor = Color(0xFFffa500), // Orange color
-                    textColor = Color.Black
+                    focusedBorderColor = yellow,
+                    unfocusedBorderColor = yellow,
+                    textColor = Color.Black,
+                    cursorColor = orange,
+                    focusedLabelColor = orange,
+                    unfocusedLabelColor = orange,
                 )
             )
+            Spacer(modifier = Modifier.height(16.dp))
             //Grid
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 256.dp),
