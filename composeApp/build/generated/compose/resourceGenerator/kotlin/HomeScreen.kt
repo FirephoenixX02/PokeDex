@@ -58,6 +58,7 @@ class HomeScreen: Screen {
         val coroutineScope = rememberCoroutineScope()
         var searchQuery by remember { mutableStateOf("") }
         val yellow = Color(0xFFFFD700)
+        var placeholder by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,7 +67,7 @@ class HomeScreen: Screen {
         ) {
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { newName -> searchQuery = newName },
+                onValueChange = { newName -> searchQuery = newName; placeholder = "" },
                 modifier = Modifier.fillMaxWidth(0.8f)
                     .padding(horizontal = 16.dp)
                     .padding(top = 16.dp)
@@ -95,6 +96,9 @@ class HomeScreen: Screen {
                                         }
                                     }
                                 }
+                            } else {
+                                searchQuery = ""
+                                placeholder = "No results, make sure to use more than 2 letters."
                             }
                         }
                     ) {
@@ -108,7 +112,8 @@ class HomeScreen: Screen {
                     cursorColor = orange,
                     focusedLabelColor = orange,
                     unfocusedLabelColor = orange,
-                )
+                ),
+                placeholder = { Text(placeholder) }
             )
             Spacer(modifier = Modifier.height(16.dp))
             //Grid
