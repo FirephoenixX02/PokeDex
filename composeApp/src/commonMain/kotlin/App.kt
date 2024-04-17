@@ -77,10 +77,6 @@ fun App() {
                     loadPokemonData(1, 10)
                 } as ArrayList<Pokemon>
 
-                pokemap.forEach { pokemon ->
-                    println(pokemon)
-                }
-
                 dataLoaded = true
             }
 
@@ -90,6 +86,7 @@ fun App() {
             Navigator(screen = HomeScreen()) { navigator ->
                 SlideTransition(navigator)
             }
+            print(PokemonNames.names)
         }
     }
 }
@@ -114,7 +111,8 @@ suspend fun loadPokemonData(startId: Int, endId: Int): List<Pokemon> {
     return pokemap
 }
 
-suspend fun loadPokemonDataFromName(name: String): ArrayList<Pokemon>? {
+suspend fun loadPokemonDataFromName(name: String): Pokemon? {
+    println("fetching api, name: ${name}")
     if (name.equals("")) return null
     var json: JSONObject = JSONObject("{}")
     try {
@@ -136,7 +134,7 @@ suspend fun loadPokemonDataFromName(name: String): ArrayList<Pokemon>? {
 
     pokemap.add(pokemon)
 
-    return pokemap
+    return pokemon
 }
 
 fun getPokeMap(): ArrayList<Pokemon> {

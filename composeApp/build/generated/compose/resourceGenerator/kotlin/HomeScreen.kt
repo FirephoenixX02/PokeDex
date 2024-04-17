@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,12 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldColors
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +58,50 @@ class HomeScreen: Screen {
         val coroutineScope = rememberCoroutineScope()
         var searchQuery by remember { mutableStateOf("") }
         Box(modifier = Modifier.background(color = orange).fillMaxSize()) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { newName -> searchQuery = newName },
+                modifier = Modifier.fillMaxWidth(0.8f)
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp)
+                    .background(color = Color.White),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            if (searchQuery.length >= 3 && PokemonNames.names.any { name -> name.contains(searchQuery.lowercase(
+                                    Locale.getDefault())) }) {
+                                coroutineScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        println("Searching for pokemon, query: $searchQuery")
+                                        val names: List<String> = PokemonNames.names.filter { name -> name.contains(searchQuery.lowercase(
+                                            Locale.getDefault())) }
+                                        val newMap = arrayListOf<Pokemon>()
+                                        names.forEach { name ->
+                                            loadPokemonDataFromName(name)?.let {
+                                                newMap.add(it)
+                                            }
+                                        }
+                                        println(names)
+                                        println(newMap)
+                                        if (newMap.isNotEmpty()) {
+                                            pokemap.clear()
+                                            pokemap.addAll(newMap)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
+                },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFFffa500), // Orange color
+                    unfocusedBorderColor = Color(0xFFffa500), // Orange color
+                    textColor = Color.Black
+                )
+            )
+            //Grid
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 256.dp),
             ) {
@@ -104,20 +151,6 @@ class HomeScreen: Screen {
                     }
                 }
             }
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { newName -> searchQuery = newName;
-                    if (PokemonNames.names.contains(searchQuery.lowercase(Locale.getDefault()))) {
-                        coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
-                                val newMap = loadPokemonDataFromName(searchQuery);
-                                newMap?.let { pokemap.clear(); pokemap.addAll(it) }
-                            }
-                        }
-                    }
-                },
-                modifier = Modifier.background(color = Color.White),
-            )
         }
     }
 
