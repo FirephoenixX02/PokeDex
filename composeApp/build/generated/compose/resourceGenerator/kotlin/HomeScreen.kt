@@ -90,7 +90,8 @@ class HomeScreen: Screen {
                                         println(names)
                                         println(newMap)
                                         if (newMap.isNotEmpty()) {
-                                            pokemap = newMap
+                                            println("Updating map")
+                                            pokemap = newMap;
                                         }
                                     }
                                 }

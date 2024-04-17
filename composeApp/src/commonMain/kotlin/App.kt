@@ -35,7 +35,7 @@ import pokedex.composeapp.generated.resources.water
 import java.net.URL
 import java.util.Locale
 
-var pokemap = ArrayList<Pokemon>()
+var pokemap by mutableStateOf<ArrayList<Pokemon>>(arrayListOf())
 val apiString = "https://pokeapi.co/api/v2/pokemon/"
 
 @OptIn(ExperimentalResourceApi::class)
@@ -112,12 +112,14 @@ suspend fun loadPokemonData(startId: Int, endId: Int): List<Pokemon> {
 }
 
 suspend fun loadPokemonDataFromName(name: String): Pokemon? {
-    println("fetching api, name: ${name}")
-    if (name.equals("")) return null
-    var json: JSONObject = JSONObject("{}")
+    val trimmedName = name.trim()
+    println("fetching api, name: $name")
+    if (trimmedName == "") return null
+    var json: JSONObject
     try {
-         json = JSONObject(URL(apiString + name).readText());
+         json = JSONObject(URL(apiString + trimmedName).readText());
     } catch (e: Exception) {
+        println(e)
         return null
     }
     val sprites = json.optJSONObject("sprites")
@@ -135,8 +137,4 @@ suspend fun loadPokemonDataFromName(name: String): Pokemon? {
     pokemap.add(pokemon)
 
     return pokemon
-}
-
-fun getPokeMap(): ArrayList<Pokemon> {
-    return pokemap
 }
