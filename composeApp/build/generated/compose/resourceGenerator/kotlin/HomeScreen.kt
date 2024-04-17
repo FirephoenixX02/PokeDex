@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -6,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
@@ -21,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +51,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import java.util.Locale
 
-class HomeScreen: Screen {
+class HomeScreen : Screen {
 
     @OptIn(ExperimentalResourceApi::class)
     @Composable
@@ -59,6 +62,29 @@ class HomeScreen: Screen {
         var searchQuery by remember { mutableStateOf("") }
         val yellow = Color(0xFFFFD700)
         var placeholder by remember { mutableStateOf("") }
+        var currentFilter by remember { mutableStateOf("") }
+        var isFilterOpen by remember { mutableStateOf(false) }
+        val filterOptions = listOf(
+            "all",
+            "normal",
+            "fire",
+            "water",
+            "electric",
+            "grass",
+            "ice",
+            "fighting",
+            "poison",
+            "ground",
+            "flying",
+            "psychic",
+            "bug",
+            "rock",
+            "ghost",
+            "dragon",
+            "dark",
+            "steel",
+            "fairy"
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -73,36 +99,67 @@ class HomeScreen: Screen {
                     .padding(top = 16.dp)
                     .background(color = Color.White),
                 trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            if (searchQuery.length >= 3 && PokemonNames.names.any { name -> name.contains(searchQuery.lowercase(
-                                    Locale.getDefault())) }) {
-                                coroutineScope.launch {
-                                    withContext(Dispatchers.IO) {
-                                        println("Searching for pokemon, query: $searchQuery")
-                                        val names: List<String> = PokemonNames.names.filter { name -> name.contains(searchQuery.lowercase(
-                                            Locale.getDefault())) }
-                                        val newMap = arrayListOf<Pokemon>()
-                                        names.forEach { name ->
-                                            loadPokemonDataFromName(name)?.let {
-                                                newMap.add(it)
+                    Row() {
+                        IconButton(
+                            onClick = {
+                                if (searchQuery.length >= 3 && PokemonNames.names.any { name ->
+                                        name.contains(
+                                            searchQuery.lowercase(
+                                                Locale.getDefault()
+                                            )
+                                        )
+                                    }) {
+                                    coroutineScope.launch {
+                                        withContext(Dispatchers.IO) {
+                                            println("Searching for pokemon, query: $searchQuery")
+                                            val names: List<String> =
+                                                PokemonNames.names.filter { name ->
+                                                    name.contains(
+                                                        searchQuery.lowercase(
+                                                            Locale.getDefault()
+                                                        )
+                                                    )
+                                                }
+                                            var newMap = arrayListOf<Pokemon>()
+                                            names.forEach { name ->
+                                                loadPokemonDataFromName(name)?.let {
+                                                    newMap.add(it)
+                                                }
+                                            }
+                                            println("currentFilter: $currentFilter")
+                                            if (!currentFilter.equals("all")) {
+                                                newMap = newMap.filter { pokemon ->
+                                                    pokemon.type == currentFilter
+                                                } as ArrayList<Pokemon>
+                                            }
+                                            println(names)
+                                            println(newMap)
+                                            if (newMap.isNotEmpty()) {
+                                                println("Updating map")
+                                                pokemap = newMap;
+                                            } else {
+                                                searchQuery = ""
+                                                placeholder =
+                                                    "No results for this filter: $currentFilter"
                                             }
                                         }
-                                        println(names)
-                                        println(newMap)
-                                        if (newMap.isNotEmpty()) {
-                                            println("Updating map")
-                                            pokemap = newMap;
-                                        }
                                     }
+                                } else {
+                                    searchQuery = ""
+                                    placeholder =
+                                        "No results, make sure to use more than 2 letters."
                                 }
-                            } else {
-                                searchQuery = ""
-                                placeholder = "No results, make sure to use more than 2 letters."
                             }
+                        ) {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
                         }
-                    ) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
+                        IconButton(
+                            onClick = {
+                                isFilterOpen = !isFilterOpen
+                            }
+                        ) {
+                            Icon(Icons.Default.Settings, contentDescription = "Filter")
+                        }
                     }
                 },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -122,7 +179,9 @@ class HomeScreen: Screen {
             ) {
                 items(pokemap.size) { index ->
                     Box(modifier = Modifier.size(256.dp).padding(5.dp)) {
-                        Canvas(modifier = Modifier.matchParentSize().clickable { navigator.push(DetailScreen(pokemap[index])) }) {
+                        Canvas(
+                            modifier = Modifier.matchParentSize()
+                                .clickable { navigator.push(DetailScreen(pokemap[index])) }) {
                             drawRoundRect(
                                 color = Color.White,
                                 topLeft = Offset(0f, 0f),
@@ -163,6 +222,15 @@ class HomeScreen: Screen {
                                 fontWeight = FontWeight.Bold
                             )
                         }
+                    }
+                }
+            }
+            DropdownMenu(
+                expanded = isFilterOpen,
+                onDismissRequest = { isFilterOpen = false }) {
+                filterOptions.forEach { option ->
+                    DropdownMenuItem(onClick = { currentFilter = option; isFilterOpen = false }) {
+                        Text(option)
                     }
                 }
             }
